@@ -17,16 +17,6 @@ public class SutService
         return Thread.CurrentThread.ManagedThreadId;
     }
 
-    public Task MyDelay(int milliseconds)
-    {
-        TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
-        Thread.Sleep(milliseconds);
-        // говорим, что асинхронный метод завершился,
-        // если его не вызвать, то метод будет работать бесконечно
-        taskCompletionSource.SetResult();
-        return taskCompletionSource.Task;
-    }
-
     public async Task TaskRunDelay(int milliseconds)
     {
         await Task.Run(() =>
@@ -78,5 +68,46 @@ public class SutService
         }
 
         return await task;
+    }
+
+    public Task MyDelay(int milliseconds)
+    {
+        TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+        Thread.Sleep(milliseconds);
+        // говорим, что асинхронный метод завершился,
+        // если его не вызвать, то метод будет работать бесконечно
+        taskCompletionSource.SetResult();
+        return taskCompletionSource.Task;
+    }
+
+    public Task MyDelay(int milliseconds, CancellationToken cancellationToken)
+    {
+        TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
+        if (cancellationToken.IsCancellationRequested)
+        {
+            throw new TaskCanceledException();
+        }
+        
+        Thread.Sleep(milliseconds);
+        taskCompletionSource.SetResult();
+        return taskCompletionSource.Task;
+    }
+    
+    public async Task LongCalc(CancellationToken cancellationToken)
+    {
+        foreach (var i in Enumerable.Range(1, 5))
+        {
+            Console.WriteLine($"Calc{i}: {Thread.CurrentThread.ManagedThreadId}");
+            await Task.Delay(100, cancellationToken);
+        }
+    }
+    
+    public async Task LongCalcWithMyDelay(CancellationToken cancellationToken)
+    {
+        foreach (var i in Enumerable.Range(1, 5))
+        {
+            Console.WriteLine($"Calc{i}: {Thread.CurrentThread.ManagedThreadId}");
+            await MyDelay(100, cancellationToken);
+        }
     }
 }

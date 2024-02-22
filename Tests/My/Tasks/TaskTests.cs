@@ -95,4 +95,30 @@ public class TaskTests
         var func = () => sut.WithTimeout(task, 100);
         await Assert.ThrowsExceptionAsync<TimeoutException>(func);
     }
+    
+    [TestMethod]
+    public async Task task_delay_cancel()
+    {
+        var sut = new SutService();
+        var cancelTokenSource = new CancellationTokenSource();
+        cancelTokenSource.CancelAfter(200);
+        var token = cancelTokenSource.Token;
+
+        Task task = null;
+        var func = () => task = sut.LongCalc(token);
+        await Assert.ThrowsExceptionAsync<TaskCanceledException>(func);
+        Assert.AreEqual(task!.Status, TaskStatus.Canceled);
+    }
+    
+    [TestMethod]
+    public async Task task_with_my_delay_cancel()
+    {
+        var sut = new SutService();
+        var cancelTokenSource = new CancellationTokenSource(200);
+
+        Task task = null;
+        var func = () => task = sut.LongCalcWithMyDelay(cancelTokenSource.Token);
+        await Assert.ThrowsExceptionAsync<TaskCanceledException>(func);
+        Assert.AreEqual(task!.Status, TaskStatus.Canceled);
+    }
 }
