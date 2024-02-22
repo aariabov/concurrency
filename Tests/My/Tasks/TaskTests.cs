@@ -121,4 +121,12 @@ public class TaskTests
         await Assert.ThrowsExceptionAsync<TaskCanceledException>(func);
         Assert.AreEqual(task!.Status, TaskStatus.Canceled);
     }
+    
+    [TestMethod]
+    public async Task task_progress()
+    {
+        var sut = new SutService();
+
+        await sut.ProgressTask(new Progress<int>(p => Console.WriteLine($"{p}%")));
+    }
 }

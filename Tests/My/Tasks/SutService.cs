@@ -110,4 +110,23 @@ public class SutService
             await MyDelay(100, cancellationToken);
         }
     }
+    
+    public async Task ProgressTask(IProgress<int> progress)
+    {
+        var totalCount = 100;
+        await Task.Run(async () =>
+        {
+            var count = 0;
+            foreach (var i in Enumerable.Range(0, totalCount))
+            {
+                await Task.Delay(10);
+                count++;
+                var percent = count * 100 / totalCount;
+                if (percent % 10 == 0)
+                {
+                    progress.Report(percent);
+                }
+            }
+        });
+    }
 }
