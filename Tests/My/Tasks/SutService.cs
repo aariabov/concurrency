@@ -66,4 +66,17 @@ public class SutService
         
         return taskCompletionSource.Task;
     }
+
+    public async Task<T> WithTimeout<T>(Task<T> task, int milliseconds)
+    {
+        var timeoutTask = Task.Delay(milliseconds);
+        var whenAnyTask = await Task.WhenAny(task, timeoutTask);
+
+        if (whenAnyTask == timeoutTask)
+        {
+            throw new TimeoutException();
+        }
+
+        return await task;
+    }
 }

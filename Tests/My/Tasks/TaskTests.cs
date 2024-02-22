@@ -71,4 +71,28 @@ public class TaskTests
         var bytes = await sut.DownloadDataAsync(webClient, "http://ya.ru/favicon.ico");
         Assert.IsTrue(bytes.Length > 0);
     }
+    
+    [TestMethod]
+    public async Task task_with_timeout()
+    {
+        var sut = new SutService();
+        
+        var task = Task.Run(() => 42);
+        var result = await sut.WithTimeout(task, 100);
+        Assert.AreEqual(42, result);
+    }
+    
+    [TestMethod]
+    public async Task task_timeout_exception()
+    {
+        var sut = new SutService();
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(200);
+            return 42;
+        });
+        
+        var func = () => sut.WithTimeout(task, 100);
+        await Assert.ThrowsExceptionAsync<TimeoutException>(func);
+    }
 }
