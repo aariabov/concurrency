@@ -34,6 +34,23 @@ public class ManualImplTests
         sut.UpdateCount_BtnClick_AsyncResult();
         Thread.Sleep(1100);
     }
+    
+    [TestMethod]
+    public async Task custom_awaitable_class()
+    {
+        var sut = new MyTask();
+
+        var result = await sut;
+        
+        Assert.AreEqual(42, result);
+    }
+    
+    [TestMethod]
+    public async Task custom_awaitable_class_task_based()
+    {
+        var sut = new MyTaskBasedOnTask();
+        await sut;
+    }
 }
 
 public delegate void GetCountEventHandler(object sender, GetCountEventHandlerArgs args);
