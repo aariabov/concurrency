@@ -129,4 +129,21 @@ public class SutService
             }
         });
     }
+    
+    public async Task WaitAsync()
+    {
+        Console.WriteLine($"Start: {Thread.CurrentThread.ManagedThreadId}");
+        // await сохранит текущий контекст ...
+        await Task.Delay(100);
+        // ... и попытается возобновить метод в этой точке с этим контекстом.
+        Console.WriteLine($"End: {Thread.CurrentThread.ManagedThreadId}");
+    }
+    
+    public async Task<int> GetResultAsync()
+    {
+        Console.WriteLine($"Start: {Thread.CurrentThread.ManagedThreadId}");
+        await Task.Delay(100);
+        Console.WriteLine($"End: {Thread.CurrentThread.ManagedThreadId}");
+        return 42;
+    }
 }

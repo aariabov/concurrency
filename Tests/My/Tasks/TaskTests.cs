@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using Nito.AsyncEx;
 
 namespace Tests.My.Tasks;
 
@@ -128,5 +129,69 @@ public class TaskTests
         var sut = new SutService();
 
         await sut.ProgressTask(new Progress<int>(p => Console.WriteLine($"{p}%")));
+    }
+    
+    [TestMethod]
+    public async Task dead_lock()
+    {
+        AsyncContext.Run(async () =>
+        {
+            Console.WriteLine($"Test start: {Thread.CurrentThread.ManagedThreadId}");
+            var sut = new SutService();
+
+            Task task = sut.WaitAsync();
+            // Синхронное ожидание блокирует текущий поток и после await возникает deadlock,
+            // тк работа не может быть продолжена в этом потоке
+            //task.Wait();
+            await task;
+            Console.WriteLine($"Test end: {Thread.CurrentThread.ManagedThreadId}");
+        });
+    }
+    
+    [TestMethod]
+    public async Task dead_lock_result()
+    {
+        AsyncContext.Run(async () =>
+        {
+            Console.WriteLine($"Test start: {Thread.CurrentThread.ManagedThreadId}");
+            var sut = new SutService();
+
+            var task = sut.GetResultAsync();
+            // Синхронное ожидание блокирует текущий поток и после await возникает deadlock,
+            // тк работа не может быть продолжена в этом потоке
+            var result = task.Result;
+            //var result = await task;
+            Console.WriteLine($"Test end: {Thread.CurrentThread.ManagedThreadId}");
+        });
+    }
+    
+    [TestMethod]
+    public async Task lock_example()
+    {
+        var account = new Account(1000);
+        var tasks = new Task[100];
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            tasks[i] = Task.Run(() => Update(account));
+        }
+        await Task.WhenAll(tasks);
+        
+        Assert.AreEqual(2000, account.GetBalance());
+    }
+    
+    static void Update(Account account)
+    {
+        decimal[] amounts = {0, 2, -3, 6, -2, -1, 8, -5, 11, -6}; // в сумме 10
+        foreach (var amount in amounts)
+        {
+            if (amount >= 0)
+            {
+                account.Credit(amount);
+            }
+            else
+            {
+                account.Debit(Math.Abs(amount));
+            }
+        }
     }
 }
