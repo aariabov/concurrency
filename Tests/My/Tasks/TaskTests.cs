@@ -194,4 +194,13 @@ public class TaskTests
             }
         }
     }
+    
+    [TestMethod]
+    public async Task заранее_выделено_несколько_объектов_task()
+    {
+        // в .NET заранее выделено несколько объектов Task
+        var task1 = Task.FromResult(true);
+        var task2 = Task.FromResult(true);
+        Assert.AreSame(task1, task2);
+    }
 }
