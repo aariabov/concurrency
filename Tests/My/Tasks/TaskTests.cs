@@ -209,6 +209,24 @@ public class TaskTests
         Assert.AreEqual(2000, account.GetBalance());
     }
     
+    [TestMethod]
+    public async Task повторный_await_таска()
+    {
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(100);
+            return 42;
+        });
+
+        var res = await task;
+        Assert.AreEqual(42, res);
+        Assert.IsTrue(task.IsCompleted);
+
+        var res1 = await task;
+        Assert.AreEqual(42, res1);
+        Assert.IsTrue(task.IsCompleted);
+    }
+    
     static void Update(Account account)
     {
         decimal[] amounts = {0, 2, -3, 6, -2, -1, 8, -5, 11, -6}; // в сумме 10
