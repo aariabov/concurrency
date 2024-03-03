@@ -112,6 +112,36 @@ public class TaskTests
     }
     
     [TestMethod]
+    public async Task cancel_child_task_if_parent_was_canceled()
+    {
+        var parentCts = new CancellationTokenSource();
+        var childCts = CancellationTokenSource.CreateLinkedTokenSource(parentCts.Token);
+
+        var childTask = Task.Delay(1000, childCts.Token);
+        parentCts.Cancel();
+        
+        Assert.IsTrue(parentCts.IsCancellationRequested);
+        Assert.IsTrue(childCts.IsCancellationRequested);
+        Assert.AreEqual(childTask.Status, TaskStatus.Canceled);
+    }
+    
+    [TestMethod]
+    public async Task родительская_задача_не_отменяется_при_отмене_дочерней()
+    {
+        var parentCts = new CancellationTokenSource();
+        var childCts = CancellationTokenSource.CreateLinkedTokenSource(parentCts.Token);
+
+        var parentTask = Task.Delay(100, parentCts.Token);
+        var childTask = Task.Delay(200, childCts.Token);
+        childCts.Cancel();
+        
+        Assert.IsFalse(parentCts.IsCancellationRequested);
+        Assert.IsTrue(childCts.IsCancellationRequested);
+        Assert.AreEqual(childTask.Status, TaskStatus.Canceled);
+        Assert.AreEqual(parentTask.Status, TaskStatus.WaitingForActivation);
+    }
+    
+    [TestMethod]
     public async Task task_with_my_delay_cancel()
     {
         var sut = new SutService();
