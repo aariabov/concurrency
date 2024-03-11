@@ -1,4 +1,6 @@
-﻿namespace Tests._3;
+﻿using System.Runtime.CompilerServices;
+
+namespace Tests._3;
 
 [TestClass]
 public class AsyncFlowTests
@@ -51,6 +53,83 @@ public class AsyncFlowTests
         await foreach (var name in data)
         {
             Console.WriteLine(name);
+        }
+    }
+
+    [TestMethod]
+    public async Task slow_range()
+    {
+        IAsyncEnumerable<int> values = SlowRange().WhereAwait(
+            async value =>
+            {
+                await Task.Delay(10);
+                return value % 2 == 0;
+            });
+        
+        await foreach (int result in values)
+        {
+            Console.WriteLine(result);
+        }
+    }
+
+    [TestMethod]
+    public async Task slow_range_count_async()
+    {
+        int count = await SlowRange().CountAsync(value => value % 2 == 0);
+        Console.WriteLine(count);
+    }
+
+    [TestMethod]
+    public async Task slow_range_count_await_async()
+    {
+        int count = await SlowRange().CountAwaitAsync(
+            async value =>
+            {
+                await Task.Delay(10);
+                return value % 2 == 0;
+            });
+        Console.WriteLine(count);
+    }
+
+    [TestMethod]
+    public async Task slow_range_cancel()
+    {
+        using var cts = new CancellationTokenSource(500);
+        CancellationToken token = cts.Token;
+        
+        var func = async () =>
+        {
+            await foreach (int result in SlowRange(token))
+            {
+                Console.WriteLine(result);
+            }
+        };
+        await Assert.ThrowsExceptionAsync<TaskCanceledException>(func);
+    }
+
+    [TestMethod]
+    public async Task slow_range_cancel1()
+    {
+        var func = async () => await ConsumeSequence(SlowRange());
+        await Assert.ThrowsExceptionAsync<TaskCanceledException>(func);
+        
+        async Task ConsumeSequence(IAsyncEnumerable<int> items)
+        {
+            using var cts = new CancellationTokenSource(500);
+            CancellationToken token = cts.Token;
+            await foreach (int result in items.WithCancellation(token))
+            {
+                Console.WriteLine(result);
+            }
+        }
+    }
+
+    private static async IAsyncEnumerable<int> SlowRange([EnumeratorCancellation] CancellationToken token = default)
+    {
+        for (int i = 0; i != 10; ++i)
+        {
+            await Task.Delay(i * 100, token);
+            yield return i;
         }
     }
 }
