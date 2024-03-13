@@ -74,4 +74,52 @@ public class ParallelTests
         Console.WriteLine($"result count: {result.Length}");
         Console.WriteLine($"FindPrimeNumbersParallelWithLock time: {watch.ElapsedMilliseconds}");
     }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_parallel_example()
+    {
+        var sut = new Sut();
+        var numbers = new [] { 1, 2, 3, 4 };
+
+        var result = sut.SumOfPrimeNumbersParallel(numbers);
+        
+        Assert.AreEqual(17, result);
+    }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_parallel()
+    {
+        var sut = new Sut();
+        var numbers = Enumerable.Range(1000, 1000).ToArray();
+
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        var result = sut.SumOfPrimeNumbersParallel(numbers);
+        watch.Stop();
+        Console.WriteLine($"Result: {result}");
+        Console.WriteLine($"SumOfPrimeNumbersParallel time: {watch.ElapsedMilliseconds}");
+    }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_parallel_linq_example()
+    {
+        var sut = new Sut();
+        var numbers = new [] { 1, 2, 3, 4 };
+
+        var result = sut.SumOfPrimeNumbersParallelLinq(numbers);
+        
+        Assert.AreEqual(17, result);
+    }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_parallel_linq()
+    {
+        var sut = new Sut();
+        var numbers = Enumerable.Range(1000, 1000).ToArray();
+
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        var result = sut.SumOfPrimeNumbersParallelLinq(numbers);
+        watch.Stop();
+        Console.WriteLine($"Result: {result}");
+        Console.WriteLine($"SumOfPrimeNumbersParallelLinq time: {watch.ElapsedMilliseconds}");
+    }
 }

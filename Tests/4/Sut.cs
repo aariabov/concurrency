@@ -71,6 +71,26 @@ public class Sut
         Console.WriteLine($"counter: {counter}");
         return result.ToArray();
     }
+    
+    public long SumOfPrimeNumbersParallel(int[] numbers)
+    {
+        object mutex = new object();
+        long result = 0; // общая сумма
+        Parallel.ForEach(source: numbers,
+            localInit: () => (long)0, // localValue - локальная переменная
+            body: (item, state, localValue) => localValue + FindPrimeNumber(item),
+            localFinally: localValue =>
+            {
+                lock (mutex)
+                    result += localValue;
+            });
+        return result;
+    }
+    
+    public long SumOfPrimeNumbersParallelLinq(int[] numbers)
+    {
+        return numbers.Select(n => FindPrimeNumber(n)).AsParallel().Sum();
+    }
 
     /// <summary>
     /// Находит n-ое простое число
