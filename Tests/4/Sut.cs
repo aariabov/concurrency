@@ -91,6 +91,31 @@ public class Sut
     {
         return numbers.Select(n => FindPrimeNumber(n)).AsParallel().Sum();
     }
+    
+    public long SumOfPrimeNumbersParallelLinq1(int[] numbers)
+    {
+        object mutex = new object();
+        long result = 0;
+        Parallel.Invoke(
+            () =>
+            {
+                var sum = SumOfPrimeNumbersParallelLinq(numbers.Take(numbers.Length / 2).ToArray());
+                lock (mutex)
+                {
+                    result += sum;
+                }
+            },
+            () =>
+            {
+                var sum = SumOfPrimeNumbersParallelLinq(numbers.Skip(numbers.Length / 2).ToArray());
+                lock (mutex)
+                {
+                    result += sum;
+                }
+            }
+            );
+        return result;
+    }
 
     /// <summary>
     /// Находит n-ое простое число

@@ -122,4 +122,15 @@ public class ParallelTests
         Console.WriteLine($"Result: {result}");
         Console.WriteLine($"SumOfPrimeNumbersParallelLinq time: {watch.ElapsedMilliseconds}");
     }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_parallel_invoke()
+    {
+        var sut = new Sut();
+        var numbers = new [] { 1, 2, 3, 4 }; // 2, 3, 5, 7
+
+        var result = sut.SumOfPrimeNumbersParallelLinq1(numbers);
+        
+        Assert.AreEqual(17, result);
+    }
 }
