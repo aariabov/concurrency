@@ -117,6 +117,64 @@ public class Sut
         return result;
     }
 
+
+    long _result = 0;
+    public long ProcessTree(Tree root)
+    {
+        Task task = Task.Factory.StartNew(
+            () => Traverse(root),
+            CancellationToken.None,
+            TaskCreationOptions.None,
+            TaskScheduler.Default);
+        task.Wait();
+        return _result;
+    }
+
+    private void Traverse(Tree current)
+    {
+        _result += FindPrimeNumber(current.Data);
+        if (current.Left != null)
+        {
+            Task.Factory.StartNew(
+                () => Traverse(current.Left),
+                CancellationToken.None,
+                TaskCreationOptions.AttachedToParent, // привязываем к родительской задаче
+                TaskScheduler.Default);
+        }
+        if (current.Right != null)
+        {
+            Task.Factory.StartNew(
+                () => Traverse(current.Right),
+                CancellationToken.None,
+                TaskCreationOptions.AttachedToParent, // привязываем к родительской задаче
+                TaskScheduler.Default);
+        }
+    }
+    
+    public long DoTree2(Tree? tree)
+    {
+        if (tree == null)
+        {
+            return 0;
+        }
+        
+        _result += FindPrimeNumber(tree.Data);
+        Parallel.Invoke(
+            () => DoTree2(tree.Left),
+            () => DoTree2(tree.Right)
+        );
+        return _result;
+    }
+
+    public long[] MultiplyBy2(IEnumerable<int> values)
+    {
+        return values
+            .AsParallel()
+            .AsOrdered()
+            .Select(value => FindPrimeNumber(value) * 2)
+            .ToArray();
+    }
+
     /// <summary>
     /// Находит n-ое простое число
     /// </summary>
@@ -147,4 +205,11 @@ public class Sut
         }
         return (--a);
     }
+}
+
+public class Tree
+{
+    public Tree? Left;
+    public Tree? Right;
+    public int Data;
 }

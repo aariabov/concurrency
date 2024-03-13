@@ -133,4 +133,69 @@ public class ParallelTests
         
         Assert.AreEqual(17, result);
     }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_of_tree_example()
+    {
+        var sut = new Sut();
+        var tree = new Tree
+        {
+            Data = 1,
+            Left = new Tree
+            {
+                Data = 2,
+                Left = new Tree
+                {
+                    Data = 4
+                }
+            },
+            Right = new Tree
+            {
+                Data = 3
+            }
+        }; // 2, 3, 5, 7
+
+        var result = sut.ProcessTree(tree);
+        
+        Assert.AreEqual(17, result);
+    }
+    
+    [TestMethod]
+    public void sum_of_prime_numbers_of_tree_example1()
+    {
+        var sut = new Sut();
+        var tree = new Tree
+        {
+            Data = 1,
+            Left = new Tree
+            {
+                Data = 2,
+                Left = new Tree
+                {
+                    Data = 4
+                }
+            },
+            Right = new Tree
+            {
+                Data = 3
+            }
+        }; // 2, 3, 5, 7
+
+        var result = sut.DoTree2(tree);
+        
+        Assert.AreEqual(17, result);
+    }
+    
+    
+    
+    [TestMethod]
+    public void multiply_of_prime_numbers()
+    {
+        var sut = new Sut();
+        var numbers = new [] { 1, 2, 3, 4 }; // 2, 3, 5, 7
+
+        var result = sut.MultiplyBy2(numbers);
+        
+        CollectionAssert.AreEqual(new long[]{ 4, 6, 10, 14 }, result);
+    }
 }
