@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Threading.Channels;
+using System.Threading.Tasks.Dataflow;
 
 namespace Tests._9;
 
@@ -68,5 +70,53 @@ public class ThreadSafeCollectionsTests
                 Trace.WriteLine(item);
             }
         });
+    }
+    
+    [TestMethod]
+    public async Task channel_example()
+    {
+        Channel<int> queue = Channel.CreateUnbounded<int>();
+        // Код-производитель
+        ChannelWriter<int> writer = queue.Writer;
+        await writer.WriteAsync(7);
+        await writer.WriteAsync(13);
+        writer.Complete();
+        
+        // Код-потребитель
+        ChannelReader<int> reader = queue.Reader;
+        await foreach (int value in reader.ReadAllAsync())
+            Trace.WriteLine(value);
+    }
+    
+    [TestMethod]
+    public async Task buffer_block_example()
+    {
+        var _asyncQueue = new BufferBlock<int>();
+        // Код-производитель.
+        await _asyncQueue.SendAsync(7);
+        await _asyncQueue.SendAsync(13);
+        _asyncQueue.Complete();
+        
+        // Код-потребитель.
+        while (await _asyncQueue.OutputAvailableAsync())
+            Trace.WriteLine(await _asyncQueue.ReceiveAsync());
+    }
+    
+    [TestMethod]
+    public async Task channel_with_capacity_example()
+    {
+        Channel<int> queue = Channel.CreateBounded<int>(
+            new BoundedChannelOptions(1)
+            {
+                FullMode = BoundedChannelFullMode.DropOldest,
+            });
+        ChannelWriter<int> writer = queue.Writer;
+        // Операция записи завершается немедленно.
+        await writer.WriteAsync(7);
+        
+        // Операция записи тоже завершается немедленно.
+        // Элемент 7 теряется, если только он не был
+        // немедленно извлечен потребителем.
+        await writer.WriteAsync(13);
     }
 }
