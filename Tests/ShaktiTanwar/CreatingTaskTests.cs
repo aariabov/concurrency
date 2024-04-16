@@ -7,13 +7,13 @@ public class CreatingTaskTests
     public async Task create_task_example()
     {
         new Task(() => Console.WriteLine($"new Task started")).Start();
-        await Task.Factory.StartNew(() => Console.WriteLine($"Task.Factory.StartNew started"));
-        await Task.Run(() => Console.WriteLine($"Task.Run started"));
+        Task.Factory.StartNew(() => Console.WriteLine($"Task.Factory.StartNew started")).Wait();
+        Task.Run(() => Console.WriteLine($"Task.Run started")).Wait();
         var delayTask = Task.Delay(10);
-        await delayTask;
+        delayTask.Wait();
 
         var resultTask = Task.FromResult(42);
-        Console.WriteLine($"Task.FromResult: {await resultTask}");
+        Console.WriteLine($"Task.FromResult: {resultTask.Result}");
 
         var func = () => Task.FromException(new Exception("fake"));
         await Assert.ThrowsExceptionAsync<Exception>(func);
