@@ -21,4 +21,11 @@
         <PackageReference Include="System.Threading.Tasks.Dataflow" Version="9.0.0-preview.2.24128.5" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="ShaktiTanwar\Test.txt" />
+      <Content Include="ShaktiTanwar\Test.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
