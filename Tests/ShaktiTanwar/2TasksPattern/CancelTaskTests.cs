@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Tests.ShaktiTanwar;
+namespace Tests.ShaktiTanwar._2TasksPattern;
 
 [TestClass]
 public class CancelTaskTests

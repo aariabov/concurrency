@@ -1,9 +1,9 @@
 ﻿using System.Text;
 
-namespace Tests.ShaktiTanwar;
+namespace Tests.ShaktiTanwar._2TasksPattern;
 
 [TestClass]
-[DeploymentItem("ShaktiTanwar\\Test.txt")]
+[DeploymentItem("ShaktiTanwar\\2TasksPattern\\Test.txt")]
 public class AsynchronousProgrammingModelTests
 {
     [TestMethod]
