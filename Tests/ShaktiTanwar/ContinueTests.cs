@@ -14,6 +14,16 @@ public class ContinueTests
     }
     
     [TestMethod]
+    public async Task continue_with_option()
+    {
+        var task = Task.FromResult(3);
+        task.ContinueWith((e) => 
+        {
+            Console.WriteLine($"Result {e.Result * 2}" );
+        }, TaskContinuationOptions.NotOnFaulted).Wait();
+    }
+    
+    [TestMethod]
     public async Task continue_when_all()
     {
         int a = 2, b = 3;
