@@ -104,4 +104,26 @@ public class AsyncAwaitTests
             return answer;
         }
     }
+
+    [TestMethod]
+    public async Task completed_tasks()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Console.WriteLine($"{i} square is {await Square(i)}, threadId {Environment.CurrentManagedThreadId}");
+        }
+
+        async Task<int> Square(int i)
+        {
+            if (i % 2 == 0)
+            {
+                return i * i;
+            }
+            else
+            {
+                await Task.Delay(10);
+                return await Task.FromResult(i * i);
+            }
+        }
+    }
 }
