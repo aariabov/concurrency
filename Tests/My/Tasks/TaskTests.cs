@@ -171,7 +171,7 @@ public class TaskTests
 
             Task task = sut.WaitAsync();
             // Синхронное ожидание блокирует текущий поток и после await возникает deadlock,
-            // тк работа не может быть продолжена в этом потоке
+            // тк работа не может быть продолжена в этом потоке, тк задан контекст
             //task.Wait();
             await task;
             Console.WriteLine($"Test end: {Thread.CurrentThread.ManagedThreadId}");
@@ -188,7 +188,7 @@ public class TaskTests
 
             var task = sut.GetResultAsync();
             // Синхронное ожидание блокирует текущий поток и после await возникает deadlock,
-            // тк работа не может быть продолжена в этом потоке
+            // тк работа не может быть продолжена в этом потоке, тк задан контекст
             var result = task.Result;
             //var result = await task;
             Console.WriteLine($"Test end: {Thread.CurrentThread.ManagedThreadId}");
