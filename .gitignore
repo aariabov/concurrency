@@ -268,3 +268,4 @@ IntegrationTests/App.config
 /_workspaces.db
 
 appsettings.*.json
+Benchmark/BenchmarkDotNet.Artifacts/

@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Concurrency", "Concurrency\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{5DF77F34-3300-4D34-A40F-DB194B8D8FD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{9B10ED5A-CC9C-4608-B703-BF245D3A765F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{5DF77F34-3300-4D34-A40F-DB194B8D8FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DF77F34-3300-4D34-A40F-DB194B8D8FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DF77F34-3300-4D34-A40F-DB194B8D8FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B10ED5A-CC9C-4608-B703-BF245D3A765F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B10ED5A-CC9C-4608-B703-BF245D3A765F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B10ED5A-CC9C-4608-B703-BF245D3A765F}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{9B10ED5A-CC9C-4608-B703-BF245D3A765F}.Debug|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
