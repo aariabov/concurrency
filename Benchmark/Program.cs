@@ -5,4 +5,4 @@ using BenchmarkDotNet.Running;
 using Concurrency;
 
 Console.WriteLine("Hello, World!");
-var summary = BenchmarkRunner.Run<CheckerBenchmark>();
+var summary = BenchmarkRunner.Run<MyClassVsStructBenchmark>();
