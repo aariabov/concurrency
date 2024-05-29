@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 
 namespace Tests.Albahari._22ParallelProgramming;
@@ -126,5 +127,168 @@ public class _1Plinq
     {
         public string Word;
         public int Index;
+    }
+
+    [TestMethod]
+    public async Task parallel_unsafe_problem()
+    {
+        int i = 0;
+        (from n in Enumerable.Range(0, 999).AsParallel() select n * i++).ToArray();
+        Console.WriteLine(i);
+    }
+
+    [TestMethod]
+    public async Task parallel_safe()
+    {
+        var i = (Enumerable.Range(0, 999).AsParallel().Select((n, i) => i)).Max();
+        Console.WriteLine(i);
+    }
+
+    [TestMethod]
+    public async Task WithDegreeOfParallelism()
+    {
+        var result = "The Quick Brown Fox"
+            .AsParallel()
+            .AsOrdered()
+            .WithDegreeOfParallelism(3) // Forces Merge + Partition
+            .Select(c => char.ToUpper(c));
+        Console.WriteLine(string.Join(null, result));
+    }
+
+    [TestMethod]
+    public async Task Cancellation()
+    {
+        IEnumerable<int> million = Enumerable.Range(3, 1000000);
+
+        var cancelSource = new CancellationTokenSource();
+
+        var primeNumberQuery =
+            from n in million.AsParallel().WithCancellation(cancelSource.Token)
+            where Enumerable.Range(2, (int)Math.Sqrt(n)).All(i => n % i > 0)
+            select n;
+
+        new Thread(() =>
+        {
+            Thread.Sleep(100); // Cancel query after
+            cancelSource.Cancel(); // 100 milliseconds.
+        }).Start();
+        try
+        {
+            // Start query running:
+            int[] primes = primeNumberQuery.ToArray();
+            // We'll never get here because the other thread will cancel us.
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Query canceled");
+        }
+    }
+
+    [TestMethod]
+    public async Task for_all()
+    {
+        "abcdef".AsParallel().Select(c => char.ToUpper(c)).ForAll(Console.Write);
+    }
+
+    [TestMethod]
+    public async Task partitioner_example()
+    {
+        int[] numbers = { 3, 4, 5, 6, 7, 8, 9 };
+
+        var parallelQuery = Partitioner.Create(numbers, true).AsParallel().Where(n => n % 2 == 0);
+
+        Console.WriteLine(string.Join(" ", parallelQuery.ToArray()));
+    }
+
+    [TestMethod]
+    public async Task aggregate_sync()
+    {
+        int[] numbers = { 1, 2, 3 };
+        int sum = numbers.Aggregate(0, (total, n) => total + n); // 6
+        Console.WriteLine(sum);
+    }
+
+    [TestMethod]
+    public async Task aggregate_parallel()
+    {
+        int[] numbers = { 1, 2, 3 };
+        int sum = numbers
+            .AsParallel()
+            .Aggregate(
+                () => 0, // seedFactory
+                (localTotal, n) => localTotal + n, // updateAccumulatorFunc
+                (mainTot, localTot) => mainTot + localTot, // combineAccumulatorFunc
+                finalResult => finalResult
+            );
+        Console.WriteLine(sum);
+    }
+
+    [TestMethod]
+    public async Task letter_frequencies_sync()
+    {
+        string text = "Let’s suppose this is a really long string";
+        var letterFrequencies = new int[26];
+        foreach (char c in text)
+        {
+            int index = char.ToUpper(c) - 'A';
+            if (index >= 0 && index < 26)
+                letterFrequencies[index]++;
+        }
+
+        for (int i = 0; i < letterFrequencies.Length; i++)
+        {
+            var chr = (char)(i + 'A');
+            Console.WriteLine($"{chr} - {letterFrequencies[i]}");
+        }
+    }
+
+    [TestMethod]
+    public async Task letter_frequencies_sync_aggregate()
+    {
+        string text = "Let’s suppose this is a really long string";
+
+        int[] letterFrequencies = text.Aggregate(
+            new int[26], // Create the "accumulator"
+            (letterFrequencies, c) => // Aggregate a letter into the accumulator
+            {
+                int index = char.ToUpper(c) - 'A';
+                if (index >= 0 && index < 26)
+                    letterFrequencies[index]++;
+                return letterFrequencies;
+            }
+        );
+
+        for (int i = 0; i < letterFrequencies.Length; i++)
+        {
+            var chr = (char)(i + 'A');
+            Console.WriteLine($"{chr} - {letterFrequencies[i]}");
+        }
+    }
+
+    [TestMethod]
+    public async Task letter_frequencies_parallel_aggregate()
+    {
+        string text = "Let’s suppose this is a really long string";
+
+        int[] letterFrequencies = text.AsParallel()
+            .Aggregate(
+                () => new int[26], // Create a new local accumulator
+                (localFrequencies, c) => // Aggregate into the local accumulator
+                {
+                    int index = char.ToUpper(c) - 'A';
+                    if (index >= 0 && index < 26)
+                        localFrequencies[index]++;
+                    return localFrequencies;
+                },
+                // Aggregate local->main accumulator
+                (mainFreq, localFreq) => mainFreq.Zip(localFreq, (f1, f2) => f1 + f2).ToArray(),
+                finalResult => finalResult // Perform any final transformation
+            );
+
+        for (int i = 0; i < letterFrequencies.Length; i++)
+        {
+            var chr = (char)(i + 'A');
+            Console.WriteLine($"{chr} - {letterFrequencies[i]}");
+        }
     }
 }
