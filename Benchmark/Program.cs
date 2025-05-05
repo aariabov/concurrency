@@ -5,4 +5,4 @@ using BenchmarkDotNet.Running;
 using Concurrency;
 
 Console.WriteLine("Hello, World!");
-var summary = BenchmarkRunner.Run<MyClassVsStructBenchmark>();
+BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

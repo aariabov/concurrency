@@ -6,7 +6,7 @@ namespace Benchmark;
 public class MyClassVsStructBenchmark
 {
     private const int Count = 1_000_000;
-    
+
     [Benchmark]
     public long MyClassCollection()
     {
@@ -18,7 +18,7 @@ public class MyClassVsStructBenchmark
 
         return list.Sum(i => i.Value);
     }
-    
+
     [Benchmark]
     public long MyClassFinalizedCollection()
     {
@@ -30,7 +30,7 @@ public class MyClassVsStructBenchmark
 
         return list.Sum(i => i.Value);
     }
-    
+
     [Benchmark]
     public long MyStructCollection()
     {
@@ -42,8 +42,9 @@ public class MyClassVsStructBenchmark
 
         return list.Sum(i => i.Value);
     }
-    
+
     record struct MyStruct(long Index, long Value);
+
     record class MyClass(long Index, long Value);
 
     class MyClassFinalized
@@ -57,6 +58,13 @@ public class MyClassVsStructBenchmark
             Value = value;
         }
 
-        ~MyClassFinalized(){}
+        ~MyClassFinalized()
+        {
+            var sum = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                sum += i;
+            }
+        }
     }
 }
